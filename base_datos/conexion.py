@@ -1,4 +1,5 @@
 import psycopg2
+from psycopg2.extras import RealDictCursor
 
 def conectar_bd():
     return psycopg2.connect(
@@ -20,7 +21,7 @@ def crear_registro(tabla, columnas, valores):
 
 def buscar_registro(tabla, columna, valor):
     conexion = conectar_bd()
-    cursor = conexion.cursor()
+    cursor = conexion.cursor(cursor_factory=RealDictCursor)
 
     query = f"SELECT * FROM {tabla} WHERE {columna} = %s"
     cursor.execute(query, (valor,))
@@ -35,12 +36,26 @@ def buscar_registro(tabla, columna, valor):
 
     return resultado
 
-def buscar_registro_usuario(username, password):
+def buscar_nombre_usuario(tabla, id_usuario):
     conexion = conectar_bd()
-    cursor = conexion.cursor()
+    cursor = conexion.cursor(cursor_factory=RealDictCursor)
 
-    query = "SELECT * FROM usuarios WHERE username = %s AND password = %s"
-    cursor.execute(query, (username, password))
+    query = f"SELECT nombre FROM {tabla} WHERE id = %s"
+    cursor.execute(query, (id_usuario,))
+
+    resultado = cursor.fetchone()
+
+    cursor.close()
+    conexion.close()
+
+    return resultado
+
+def buscar_registro_usuario(id_usuario, password):
+    conexion = conectar_bd()
+    cursor = conexion.cursor(cursor_factory=RealDictCursor)
+
+    query = "SELECT * FROM usuario WHERE id = %s AND contrasena = %s"
+    cursor.execute(query, (id_usuario, password))
 
     resultado = cursor.fetchone()
 

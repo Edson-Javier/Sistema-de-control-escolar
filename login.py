@@ -2,7 +2,7 @@ import ttkbootstrap as ttkb
 from ttkbootstrap.constants import *
 from tkinter import PhotoImage, messagebox
 from menu_principal import Menu_principal
-from consultas import buscar_registro_usuario
+from base_datos.conexion import buscar_registro_usuario
 
 class Menu_login:
     def __init__(self, master):
@@ -75,10 +75,10 @@ class Menu_login:
         registro = buscar_registro_usuario(id_usuario, password)
 
         if registro:
-            rol = registro['rol']
-            nombre = registro['nombre']
+            rol = registro['perfil_usuario']
+            id_usuario = registro['id']
             messagebox.showinfo("Inicio de sesion exitoso", "Bienvenido")
             self.master.destroy()
-            Menu_principal(id_usuario, nombre, rol)
+            Menu_principal(id_usuario, rol)
         else:
             messagebox.showerror("Error", "Usuario o contraseña incorrectos")

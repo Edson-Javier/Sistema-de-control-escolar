@@ -32,8 +32,43 @@ class ProfesorInterfaz:
         self.buscar_entry = ttkb.Entry(self.window, font=("Georgia", 12))
         self.buscar_entry.place(x=900, y=25, width=300)
 
-        self.btn_buscar = ttkb.Button(self.window, text="Buscar", style="primary.TButton", command=self.buscar)
-        self.btn_buscar.place(x=1220, y=25)
+        self.btn_buscar = ttkb.Button(self.window, text="Buscar", style="secondary.TButton", command=self.buscar)
+        self.btn_buscar.place(x=1220, y=27)
+
+
+
+        columns = ("id", "nombre", "direccion", "telefono", "especialidad")
+        self.tree = ttkb.Treeview(self.window, columns=columns, show="headings", height=8, style="mystyle.Treeview")
+        
+
+        self.tree.heading("id", text="ID")
+        self.tree.heading("nombre", text="Nombre")
+        self.tree.heading("direccion", text="Dirección")
+        self.tree.heading("telefono", text="Teléfono")
+        self.tree.heading("especialidad", text="Especialidad")
+
+
+        self.tree.column("id", width=25, anchor="center")
+        self.tree.column("nombre", width=100, anchor="center")
+        self.tree.column("direccion", width=100, anchor="center")
+        self.tree.column("telefono", width=100, anchor="center")
+        self.tree.column("especialidad", width=100, anchor="center")
+
+
+        style = ttk.Style()
+        style.configure("mystyle.Treeview", 
+                        background="#e0e0e0", 
+                        foreground="black", 
+                        rowheight=25, 
+                        fieldbackground="#e0e0e0")
+        style.configure("mystyle.Treeview.Heading", font=("Georgia", 12, "bold"))
+
+
+        self.tree.place(x=725, y=150, width=600, height=400)
+        scrollbar = ttkb.Scrollbar(self.window, orient="vertical", command=self.tree.yview)
+        self.tree.configure(yscroll=scrollbar.set)
+        scrollbar.place(x=1325, y=150, height=400)
+
 
         #ID
         ttkb.Label(self.window, text="ID Profesor:", font=("Georgia", 12, "bold"), foreground="black").place(x=200, y=150)
@@ -103,7 +138,7 @@ class ProfesorInterfaz:
         print("Eliminando profesor")
 
     def clear_fields(self):
-        """Limpia los campos de entrada."""
+        #limpia los campos de entrada
         self.id_entry.config(state="normal")
         self.id_entry.delete(0, tk.END)
         self.id_entry.config(state="readonly")
@@ -114,6 +149,21 @@ class ProfesorInterfaz:
         self.buscar_entry.delete(0, tk.END)
         self.contraseña_entry.delete(0, tk.END)
 
+    def on_tree_select(self, event):
+        #obtener el seleccionado
+        selected_item = self.tree.selection()
+        if selected_item:
+            item = self.tree.item(selected_item)
+            data = item["values"]
+
+            self.id_entry.config(state="normal")
+            self.id_entry.delete(0, tk.END)
+            self.id_entry.insert(0, data[0])  
+            self.id_entry.config(state="readonly")
+            
+
 
 
 #ProfesorInterfaz()
+
+

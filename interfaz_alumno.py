@@ -35,6 +35,45 @@ class AlumnoInterfaz:
         self.btn_buscar = ttkb.Button(self.window, text="Buscar", style="primary.TButton", command=self.buscar)
         self.btn_buscar.place(x=1220, y=25)
 
+
+# Tabla Treeview para mostrar profesores justo debajo de la barra de búsqueda
+        columns = ("id", "nombre", "direccion", "telefono", "semestre", "estatus", "carrera")
+        self.tree = ttkb.Treeview(self.window, columns=columns, show="headings", height=8, style="mystyle.Treeview")
+        
+        # Definir encabezados de columna
+        self.tree.heading("id", text="ID")
+        self.tree.heading("nombre", text="Nombre")
+        self.tree.heading("direccion", text="Dirección")
+        self.tree.heading("telefono", text="Teléfono")
+        self.tree.heading("semestre", text="Semestre")
+        self.tree.heading("estatus", text="Estatus")
+        self.tree.heading("carrera", text="Carrera")
+
+        # Configurar tamaño de las columnas
+        self.tree.column("id", width=25, anchor="center")
+        self.tree.column("nombre", width=100, anchor="center")
+        self.tree.column("direccion", width=100, anchor="center")
+        self.tree.column("telefono", width=60, anchor="center")
+        self.tree.column("semestre", width=25, anchor="center")
+        self.tree.column("estatus", width=25, anchor="center")
+        self.tree.column("carrera", width=25, anchor="center")
+
+        # Aplicar estilo para fondo oscuro en el Treeview
+        style = ttk.Style()
+        style.configure("mystyle.Treeview", 
+                        background="#e0e0e0", 
+                        foreground="black", 
+                        rowheight=25, 
+                        fieldbackground="#e0e0e0")
+        style.configure("mystyle.Treeview.Heading", font=("Georgia", 12, "bold"))
+
+        # Agregar tabla a la ventana con scrollbar
+        self.tree.place(x=725, y=200, width=600, height=280)
+        scrollbar = ttkb.Scrollbar(self.window, orient="vertical", command=self.tree.yview)
+        self.tree.configure(yscroll=scrollbar.set)
+        scrollbar.place(x=1325, y=200, height=280)
+
+
         #ID
         ttkb.Label(self.window, text="ID Alumno:", font=("Georgia", 12, "bold"), foreground="black").place(x=200, y=150)
         self.id_entry = ttkb.Entry(self.window, font=("Georgia", 12), state="readonly")
@@ -126,6 +165,29 @@ class AlumnoInterfaz:
         self.carrera_combobox.set("")
         self.buscar_entry.delete(0, tk.END)
         self.contraseña_entry.delete(0, tk.END)
+
+    def on_tree_select(self, event):
+        #obtener el seleccionado
+        selected_item = self.tree.selection()
+        if selected_item:
+            item = self.tree.item(selected_item)
+            data = item["values"]
+
+            self.id_entry.config(state="normal")
+            self.id_entry.delete(0, tk.END)
+            self.id_entry.insert(0, data[0])  
+            self.id_entry.config(state="readonly")
+            
+            self.nombre_entry.delete(0, tk.END)
+            self.nombre_entry.insert(0, data[1])  
+            
+            self.direccion_entry.delete(0, tk.END)
+            self.direccion_entry.insert(0, data[2])  
+            
+            self.telefono_entry.delete(0, tk.END)
+            self.telefono_entry.insert(0, data[3])  
+            
+            self.especialidad_combobox.set(data[4])   
 
 
 #comentar o descomentar

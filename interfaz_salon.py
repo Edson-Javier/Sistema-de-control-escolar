@@ -148,4 +148,4 @@ class SalonInterfaz:
 
 
 #comentar o descomentar
-SalonInterfaz()
+#SalonInterfaz()

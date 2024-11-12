@@ -1,12 +1,13 @@
 import tkinter as tk
 from tkinter import PhotoImage
 import ttkbootstrap as ttkb
+from base_datos.conexion import buscar_nombre_usuario
 
 class Menu_principal:
-    def __init__(self, id_usuario, nombre, rol):
+    def __init__(self, id_usuario, rol):
         self.id_usuario = id_usuario
-        self.nombre = nombre
         self.rol = rol
+        self.nombre = self.obtener_nombre_usuario(self.rol, self.id_usuario)
 
         self.main_window = ttkb.Window(themename="flatly")  
         self.main_window.title("Menú Administracion")
@@ -87,5 +88,20 @@ class Menu_principal:
     def abrir_registrar_carrera(self):
         print("Abriendo ventana para registrar carrera.")
 
+    def obtener_nombre_usuario(self, rol, id_usuario):
+        if rol == "Coordinador":
+            tabla = "coordinador"
+
+        elif rol == "Maestro":
+            tabla = "maestro"
+
+        else:
+            tabla = "alumno"
+
+        registro = buscar_nombre_usuario(tabla, id_usuario)
+        nombre = registro['nombre']
+
+        return nombre
+
 #si descomentan esta linea se puede visualizar el menu pricipal 1no
-#menu = Menu_principal(id_usuario=1, nombre="Juan Pérez", rol="Administrador")
+#menu = Menu_principal(self.id_usuario, self.rol)

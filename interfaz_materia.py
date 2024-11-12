@@ -36,25 +36,25 @@ class MateriaInterfaz:
         self.btn_buscar.place(x=1220, y=25)
 
 
-# Tabla Treeview para mostrar profesores justo debajo de la barra de búsqueda
+
         columns = ("id", "nombre", "creditos", "cupo", "carrera")
         self.tree = ttkb.Treeview(self.window, columns=columns, show="headings", height=8, style="mystyle.Treeview")
         
-        # Definir encabezados de columna
+
         self.tree.heading("id", text="ID")
         self.tree.heading("nombre", text="Nombre")
         self.tree.heading("creditos", text="Credito")
         self.tree.heading("cupo", text="Cupo")
         self.tree.heading("carrera", text="Carrera")
 
-        # Configurar tamaño de las columnas
+
         self.tree.column("id", width=25, anchor="center")
         self.tree.column("nombre", width=100, anchor="center")
         self.tree.column("creditos", width=100, anchor="center")
         self.tree.column("cupo", width=100, anchor="center")
         self.tree.column("carrera", width=100, anchor="center")
 
-        # Aplicar estilo para fondo oscuro en el Treeview
+
         style = ttk.Style()
         style.configure("mystyle.Treeview", 
                         background="#e0e0e0", 
@@ -63,7 +63,7 @@ class MateriaInterfaz:
                         fieldbackground="#e0e0e0")
         style.configure("mystyle.Treeview.Heading", font=("Georgia", 12, "bold"))
 
-        # Agregar tabla a la ventana con scrollbar
+
         self.tree.place(x=725, y=150, width=600, height=400)
         scrollbar = ttkb.Scrollbar(self.window, orient="vertical", command=self.tree.yview)
         self.tree.configure(yscroll=scrollbar.set)

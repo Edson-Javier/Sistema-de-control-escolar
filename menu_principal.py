@@ -2,6 +2,11 @@ import tkinter as tk
 from tkinter import PhotoImage
 import ttkbootstrap as ttkb
 from base_datos.conexion import buscar_nombre_usuario
+from interfaz_alumno import AlumnoInterfaz
+from interfaz_carrera import CarreraInterfaz
+from interfaz_materia import MateriaInterfaz
+from interfaz_profesor import ProfesorInterfaz
+from interfaz_salon import SalonInterfaz
 
 class Menu_principal:
     def __init__(self, id_usuario, rol):
@@ -71,22 +76,26 @@ class Menu_principal:
 
     def salir(self):
         print("Cerrando el menú principal.")
-        self.main_window.destroy()
+        self.main_window.withdraw()
 
     def abrir_registrar_usuario(self):
-        print("Abriendo ventana para registrar usuarios.")
-
+        print("Abriendo ventana para registrar usuario.")
+        
     def abrir_registrar_alumno(self):
-        print("Abriendo ventana para registrar alumno.")
+        self.main_window.withdraw()
+        alumno_interfaz = AlumnoInterfaz()
 
     def abrir_registrar_profesor(self):
-        print("Abriendo ventana para registrar profesor.")
+        self.main_window.withdraw()
+        ProfesorInterfaz()
 
     def abrir_registrar_materia(self):
-        print("Abriendo ventana para registrar materia.")
+        self.main_window.withdraw()
+        MateriaInterfaz()
 
     def abrir_registrar_carrera(self):
-        print("Abriendo ventana para registrar carrera.")
+        self.main_window.withdraw()
+        CarreraInterfaz()
 
     def obtener_nombre_usuario(self, rol, id_usuario):
         if rol == "Coordinador":

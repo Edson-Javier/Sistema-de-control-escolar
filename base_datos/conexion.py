@@ -6,6 +6,17 @@ def conectar_bd():
         dbname="sistema_escolar", user="postgres", password="123456", host="localhost"
     )
 
+def crear_registro_una_columna(tabla, columna, valor):
+    conexion = conectar_bd()
+    cursor = conexion.cursor()
+
+    query = f"INSERT INTO {tabla} ({columna}) VALUES (%s)"
+
+    cursor.execute(query, (valor,))
+    conexion.commit()
+    cursor.close()
+    conexion.close()
+
 def crear_registro(tabla, columnas, valores):
     conexion = conectar_bd()
     cursor = conexion.cursor()

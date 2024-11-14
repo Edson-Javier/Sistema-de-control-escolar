@@ -1,6 +1,9 @@
 import tkinter as tk
-from tkinter import ttk, PhotoImage
+from tkinter import ttk, PhotoImage, messagebox
 import ttkbootstrap as ttkb
+from Modelos.profesor import Profesor
+from Modelos.usuario import Usuario
+from base_datos.conexion import conectar_bd, buscar_registro, crear_registro, obtener_siguiente_id, modificar_registro, eliminar_registro
 
 class ProfesorInterfaz:
     def __init__(self):
@@ -37,7 +40,7 @@ class ProfesorInterfaz:
 
 
 
-        columns = ("id", "nombre", "direccion", "telefono", "especialidad")
+        columns = ("id", "nombre", "direccion", "telefono", "especialidad", "correo")
         self.tree = ttkb.Treeview(self.window, columns=columns, show="headings", height=8, style="mystyle.Treeview")
         
 
@@ -46,6 +49,7 @@ class ProfesorInterfaz:
         self.tree.heading("direccion", text="Dirección")
         self.tree.heading("telefono", text="Teléfono")
         self.tree.heading("especialidad", text="Especialidad")
+        self.tree.heading("correo", text="Correo")
 
 
         self.tree.column("id", width=25, anchor="center")
@@ -53,6 +57,7 @@ class ProfesorInterfaz:
         self.tree.column("direccion", width=100, anchor="center")
         self.tree.column("telefono", width=100, anchor="center")
         self.tree.column("especialidad", width=100, anchor="center")
+        self.tree.column("correo", width=100, anchor="center")
 
 
         style = ttk.Style()
@@ -68,6 +73,10 @@ class ProfesorInterfaz:
         scrollbar = ttkb.Scrollbar(self.window, orient="vertical", command=self.tree.yview)
         self.tree.configure(yscroll=scrollbar.set)
         scrollbar.place(x=1325, y=150, height=400)
+
+        self.tree.bind("<Double-1>", self.seleccionar_fila)
+
+        self.mostrar_todos_registros()
 
 
         #ID
@@ -100,6 +109,10 @@ class ProfesorInterfaz:
         self.contraseña_entry = ttkb.Entry(self.window, font=("Georgia", 12))
         self.contraseña_entry.place(x=400, y=400, width=300)
 
+        ttkb.Label(self.window, text="Correo:", font=("Georgia", 12, "bold"), foreground="black").place(x=200, y=450)
+        self.correo_entry = ttkb.Entry(self.window, font=("Georgia", 12))
+        self.correo_entry.place(x=400, y=450, width=300)
+
 
 
         self.btn_nuevo = ttkb.Button(self.window, text="Nuevo", style="info.TButton", command=self.nuevo, **button_style)
@@ -121,49 +134,247 @@ class ProfesorInterfaz:
         self.window.mainloop()
 
     def buscar(self):
-        print("Buscando profesor...")
+        id_profesor = self.buscar_entry.get()
+
+        try:
+            id_profesor_int = int(id_profesor)
+        except:
+            messagebox.showerror("Error", "El ID de Profesor debe ser numerico")
+            return
+
+        try:
+            profesor_encontrado = buscar_registro("maestro", "id", id_profesor_int)
+            usuario_encontrado = buscar_registro("usuario", "id", id_profesor_int)
+            self.mostrar(profesor_encontrado, usuario_encontrado)
+        except Exception as e:
+            messagebox.showwarning("No encontrado", f"No se ha encontrado el cliente, error: {e}")
+            return
+
+    def mostrar(self, profesor, usuario):
+        self.limpiar_tabla()
+
+        id_profesor = profesor['id']
+        nombre = profesor['nombre']
+        direccion = profesor['direccion']
+        telefono = profesor['telefono']
+        especialidad = profesor['especialidad']
+        correo = usuario['correo']
+
+        self.tree.insert("", 0, values=(id_profesor, nombre, direccion, telefono, especialidad, correo))
 
     def nuevo(self):
         self.clear_fields()
-        print("Creando nuevo profesor")
-        self.clear_fields()
+        print()
 
     def guardar(self):
-        print("Guardando información del profesor")
+        nombre = self.nombre_entry.get().strip()
+        direccion = self.direccion_entry.get().strip()
+        telefono = self.telefono_entry.get().strip()
+        especialidad = self.especialidad_combobox.get().strip()
+        contrasena = self.contraseña_entry.get().strip()
+        correo = self.correo_entry.get().strip()
+        rol = "Profesor"
 
+        self.clear_fields()
+
+        profesor = Profesor(nombre, direccion, telefono, especialidad,contrasena)
+        usuario = Usuario(contrasena, rol, correo) #Falta Correo
+
+        try:
+            telefono_int = int(telefono)
+        except:
+            messagebox.showerror("Error", "El telefono debe poseer solo valores numericos")
+            return
+
+        if profesor.es_valido() and usuario.es_valido():
+            columnas_usuario = ("contrasena", "perfil_usuario", "correo")
+            valores_usuario = (contrasena, rol, correo)
+
+            id_profesor = obtener_siguiente_id("usuario", "id")
+
+            columnas_profesor = ("id", "nombre", "direccion", "telefono", "especialidad")
+            valores_profesor = (id_profesor, nombre, direccion, telefono_int, especialidad)
+
+            try:
+                crear_registro("usuario", columnas_usuario, valores_usuario)
+                crear_registro("maestro", columnas_profesor, valores_profesor)
+                messagebox.showinfo(message="Profesor creado satisfactoriamente.")
+                self.mostrar_todos_registros()
+            except Exception as e:
+                messagebox.showerror(message=f"No se pudo registrar al Profesor. Intente nuevamente. Error: {e}")
+                return
+        else:
+            messagebox.showerror(message="Datos del profesor invalidos o repetidos. Intente nuevamente.")
+            return
+    
     def editar(self):
-        print("Editando información del profesor")
+        id_profesor = self.id_entry.get().strip()
+        nombre = self.nombre_entry.get().strip()
+        direccion = self.direccion_entry.get().strip()
+        telefono = self.telefono_entry.get().strip()
+        especialidad = self.especialidad_combobox.get().strip()
+        contrasena = self.contraseña_entry.get().strip()
+        correo = self.correo_entry.get().strip()
+
+        try:
+            id_profesor_int = int(id_profesor)
+        except:
+            messagebox.showerror("Error", "El id del profesor debe ser numerico")
+            return
+
+        try:
+            telefono_int = int(telefono)
+        except:
+            messagebox.showerror("Error", "El telefono debe ser numerico")
+            return
+
+
+        if contrasena:
+            profesor = Profesor(nombre, direccion, telefono, especialidad, contrasena)
+
+            if profesor.es_valido():
+                nuevos_datos_profesor = {"nombre": nombre,
+                                "direccion": direccion,
+                                "telefono": telefono_int,
+                                "especialidad": especialidad}
+                
+                nuevos_datos_usuario = {"contrasena": contrasena,
+                                        "correo": correo}
+            else:
+                messagebox.showerror("Error", "Los datos del Profesor no son validos")
+                return
+                
+                
+        else:
+            profesor = Profesor.sin_contrasena(nombre, direccion, telefono, especialidad)
+
+            if profesor.es_valido():
+                nuevos_datos_profesor = {"nombre": nombre,
+                                "direccion": direccion,
+                                "telefono": telefono_int,
+                                "especialidad": especialidad}
+                
+                nuevos_datos_usuario = {"correo": correo}
+
+        try:
+            modificar_registro("usuario", "id", id_profesor_int, nuevos_datos_usuario)
+            modificar_registro("maestro", "id", id_profesor_int, nuevos_datos_profesor)
+
+            registro_profesor = buscar_registro("maestro", "id", id_profesor_int)
+            registro_usuario = buscar_registro("usuario", "id", id_profesor_int)
+
+            self.mostrar(registro_profesor, registro_usuario)
+            self.clear_fields()
+            messagebox.showinfo("Modificacion realizada", "Los datos del Profesor han sido modificados adecuadamente")
+        except Exception as e:
+            messagebox.showerror("Error", f"No se ha podido modificar los datos del Profesor. Error {e}")
+            return
+
 
     def eliminar(self):
-        print("Eliminando profesor")
+        id_profesor = self.id_entry.get()
+
+        try:
+            id_profesor_int = int(id_profesor)
+        except:
+            messagebox.showerror("Error", "El ID de Profesor debe ser solo numerico")
+            return
+
+        try:
+            eliminar_registro("maestro", "id", id_profesor_int)
+            eliminar_registro("usuario", "id", id_profesor_int)
+            
+            self.mostrar_todos_registros()
+            self.clear_fields()
+            messagebox.showinfo("Profesor eliminado", "Se ha eliminado al Profesor de la base de datos")
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo eliminar los datos del Profesor. Error: {e}")
+            return
 
     def clear_fields(self):
-        #limpia los campos de entrada
+        """Limpia los campos de entrada."""
         self.id_entry.config(state="normal")
         self.id_entry.delete(0, tk.END)
         self.id_entry.config(state="readonly")
+
         self.nombre_entry.delete(0, tk.END)
         self.direccion_entry.delete(0, tk.END)
         self.telefono_entry.delete(0, tk.END)
-        self.especialidad_combobox.set("")
-        self.buscar_entry.delete(0, tk.END)
-        self.contraseña_entry.delete(0, tk.END)
 
-    def on_tree_select(self, event):
-        #obtener el seleccionado
-        selected_item = self.tree.selection()
-        if selected_item:
-            item = self.tree.item(selected_item)
-            data = item["values"]
+        self.especialidad_combobox.config(state="normal")
+        self.especialidad_combobox.delete(0, tk.END)
+        self.especialidad_combobox.config(state="readonly")
+
+        self.contraseña_entry.delete(0, tk.END)
+        self.correo_entry.delete(0, tk.END)
+    
+    def limpiar_tabla(self):
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+    
+    def seleccionar_fila(self, evento):
+        fila_seleccionada = self.tree.selection()
+
+        if fila_seleccionada:
+            valores = self.tree.item(fila_seleccionada, "values")
 
             self.id_entry.config(state="normal")
             self.id_entry.delete(0, tk.END)
-            self.id_entry.insert(0, data[0])  
+            self.id_entry.insert(0, valores[0])
             self.id_entry.config(state="readonly")
+
+            self.nombre_entry.delete(0, tk.END)
+            self.nombre_entry.insert(0, valores[1])
+
+            self.direccion_entry.delete(0, tk.END)
+            self.direccion_entry.insert(0, valores[2])
+
+            self.telefono_entry.delete(0, tk.END)
+            self.telefono_entry.insert(0, valores[3])
+
+            self.especialidad_combobox.config(state="normal")
+            self.especialidad_combobox.delete(0, tk.END)
+            self.especialidad_combobox.insert(0, valores[4])
+            self.especialidad_combobox.config(state="readonly")
+
+            self.correo_entry.delete(0, tk.END)
+            self.correo_entry.insert(0, valores[5])
+
+    
+    def mostrar_todos_registros(self):
+        # Limpiar el Treeview antes de insertar nuevos datos
+        for row in self.tree.get_children():
+            self.tree.delete(row)
+        
+        conexion = conectar_bd()
+        cursor = conexion.cursor()
+        
+        # Consulta que une las dos tablas basándose en el id de maestro
+        cursor.execute("""
+            SELECT m.id, m.nombre, m.direccion, m.telefono, m.especialidad, u.correo
+            FROM maestro AS m
+            JOIN usuario AS u ON m.id = u.id
+        """)
+        
+        registros = cursor.fetchall()
+
+        # Imprimir registros para depurar
+        print("Registros obtenidos:", registros)
+        
+        # Insertar cada registro en el Treeview
+        for registro in registros:
+            self.tree.insert("", "end", values=registro)
+    
+        # Cerrar el cursor y la conexión
+        cursor.close()
+        conexion.close()
+    
+    def entry_buscar_vacio(self, evento):
+        texto = self.nombre_entry.get().strip()
+        if not texto:  # Si el campo está vacío
+            self.mostrar_todos_registros()
             
 
-
-
-#ProfesorInterfaz()
+ProfesorInterfaz()
 
 

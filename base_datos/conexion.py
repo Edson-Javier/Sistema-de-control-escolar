@@ -99,6 +99,19 @@ def eliminar_registro(tabla, columna, valor):
     cursor.close()
     conexion.close()
 
+def obtener_id(tabla):
+    conexion = conectar_bd()
+    cursor = conexion.cursor()
+
+    query = f"SELECT id FROM {tabla}"
+    cursor.execute(query)
+    resultado = cursor.fetchone()
+
+    cursor.close()
+    conexion.close()
+
+    return resultado
+
 def obtener_siguiente_id(tabla, id_columna):
     conexion = conectar_bd()
     cursor = conexion.cursor()
@@ -111,6 +124,7 @@ def obtener_siguiente_id(tabla, id_columna):
 
     cursor.close()
     conexion.close()
+
     return siguiente_id
 
 def obtener_todos_registros(tabla):

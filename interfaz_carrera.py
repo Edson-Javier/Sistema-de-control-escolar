@@ -138,7 +138,7 @@ class CarreraInterfaz:
             try:
                 crear_registro_una_columna("carrera", columnas, valores)
                 messagebox.showinfo(message="Carrera registrada satisfactoriamente.")
-                self.mostrar()
+                self.mostrar_todos_registros()
             except Exception as e:
                 messagebox.showerror(message=f"No se pudo registrar la carrera. Intente nuevamente. Error: {e}")
                 return

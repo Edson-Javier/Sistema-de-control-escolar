@@ -44,8 +44,20 @@ class Profesor:
         nombre_valido = self.validar_nombre()
         direccion_valida = self.validar_direccion()
         telefono_valido = self.validar_telefono()
-        especialidad_valida = self.validar_especialidad()  
-        contrasena_valida = self.validar_contrasena()
+        especialidad_valida = self.validar_especialidad()
+        
+        # Verifica si la contraseña existe antes de validar
+        contrasena_valida = self.validar_contrasena() if hasattr(self, 'contrasena') else True
         
         return (nombre_valido and direccion_valida and telefono_valido and 
-            especialidad_valida and contrasena_valida)  #and id_valido
+                especialidad_valida and contrasena_valida)
+    
+    @classmethod
+    def sin_contrasena(cls, nombre, direccion, telefono, especialidad):
+        # Constructor alternativo que no define el atributo `contrasena`
+        instancia = cls.__new__(cls)  # Crear instancia sin llamar a __init__
+        instancia.nombre = nombre
+        instancia.direccion = direccion
+        instancia.telefono = telefono
+        instancia.especialidad = especialidad
+        return instancia

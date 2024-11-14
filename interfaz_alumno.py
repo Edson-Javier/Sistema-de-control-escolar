@@ -191,4 +191,4 @@ class AlumnoInterfaz:
 
 
 #comentar o descomentar
-#AlumnoInterfaz()
+AlumnoInterfaz()
